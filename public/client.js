@@ -359,7 +359,7 @@
   function renderEnded() {
     if (!M.ranking) return;
     const ranked = M.ranking.map(pById).filter(Boolean), w = ranked[0], c = CHARS[w.char], m = me();
-    const canRestart = isScreen || (m && M.hostId === m.id);
+    const canRestart = true;
     $('endBody').innerHTML = `<div class="plate" style="${cssVars(c)}">
       <div class="winner"><canvas width="520" height="520" id="winCanvas"></canvas>
         <div><div class="k">NHÀ VÔ ĐỊCH ĐẠI CHIẾN ÁP SUẤT</div><h2 style="color:${c.color}">${esc(w.name)}</h2>
@@ -369,7 +369,7 @@
         return `<div class="rk"><span class="pl">#${p.place}</span><span class="c" style="background:${cc.color}"></span>
           <div><b>${esc(p.name)}</b><small>${esc(TEAMS[p.team - 1])} · ${cc.name}</small></div>
           <div class="num"><b>${p.kills}</b>HẠ GỤC</div><div class="num"><b>${p.correct}/${M.total}</b>CÂU ĐÚNG</div></div>`; }).join('')}</div>
-      <div class="center" style="margin-top:18px">${canRestart ? '<button class="btn" data-act="restart">CHƠI LẠI</button>' : '<p class="field-label">CHỜ CHỦ PHÒNG BẤM CHƠI LẠI…</p>'}</div></div>`;
+      <div class="center" style="margin-top:18px">${canRestart ? '<button class="btn" data-act="restart">CHƠI LẠI · VỀ PHÒNG CHỜ</button>' : '<p class="field-label">CHỜ CHỦ PHÒNG BẤM CHƠI LẠI…</p>'}</div></div>`;
     R.portrait($('winCanvas'), w.char);
   }
 

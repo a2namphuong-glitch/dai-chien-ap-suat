@@ -250,6 +250,16 @@ const TICK = 1000 / 30;
 let lastTick = now(), snapCount = 0;
 setInterval(() => {
   const t = now(); const dt = Math.min(0.1, (t - lastTick) / 1000); lastTick = t;
+  // dọn phòng: mọi người đã thoát -> xóa trận cũ; người thoát ở phòng chờ quá 10 giây -> xóa chỗ
+  if (game.players.length && !game.players.some(p => p.connected)) {
+    if (!game.emptySince) game.emptySince = t;
+    if (t - game.emptySince > 5000) { resetGame(false); pushMeta(); return; }
+  } else game.emptySince = 0;
+  if (game.phase === 'lobby') {
+    const n = game.players.length;
+    game.players = game.players.filter(p => p.connected || t - (p.discAt || t) < 10000);
+    if (game.players.length !== n) pushMeta();
+  }
   if (!inMatch()) return;
 
   // chuyển giai đoạn theo thời gian
@@ -467,7 +477,7 @@ function onMessage(c, text) {
     }
     case 'lock': if (me && game.phase === 'reveal') doLock(me, Number(data.target)); return;
     case 'restart':
-      if ((isHost || c.screen) && game.phase === 'ended') { resetGame(true); pushMeta(); }
+      if (game.phase === 'ended') { resetGame(true); pushMeta(); }
       return;
     case 'resetAll':
       if (c.screen) { resetGame(false); pushMeta(); }
@@ -478,7 +488,7 @@ function onDisconnect(c) {
   if (!c.key) return;
   const p = byKey(c.key);
   if (!p || p.clientId !== c.id) return;
-  p.connected = false; p.input = { m: 0, a: p.input.a, f: 0, d: p.input.d };
+  p.connected = false; p.discAt = now(); p.input = { m: 0, a: p.input.a, f: 0, d: p.input.d };
   pushMeta();
   if (game.phase === 'quiz' && alive().every(q => !q.connected || q.answer !== null)) game.phaseEnds = now() + 400;
 }
