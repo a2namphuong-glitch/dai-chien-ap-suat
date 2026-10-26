@@ -16,7 +16,7 @@
   const snaps = [];          // các ảnh chụp vị trí từ server
   let latest = null;
   const events = [];
-  const INTERP = 70;         // ms trễ nội suy cho người chơi khác
+  const INTERP = 110;        // ms trễ nội suy cho người chơi khác (tính theo đồng hồ máy chủ)
   let selTeam = null, selChar = null, typedName = '';
 
   // ---------- kết nối ----------
@@ -82,10 +82,13 @@
   };
 
   // ================= NHẬN DỮ LIỆU =================
+  let clockOff = null;
   function onSnap(s) {
-    const t = performance.now();
+    const now = performance.now(), sample = now - s.st;
+    if (clockOff === null || sample < clockOff) clockOff = sample; else clockOff += (sample - clockOff) * 0.01;
+    const t = s.st + clockOff;
     const players = new Map();
-    for (const a of s.p) players.set(a[0], { id: a[0], x: a[1], y: a[2], a: a[3], hp: a[4], w: a[5], sh: a[6], fl: a[7], dcd: a[8], lk: a[9] });
+    for (const a of s.p) players.set(a[0], { id: a[0], x: a[1], y: a[2], a: a[3], hp: a[4], w: a[5], sh: a[6], fl: a[7], dcd: a[8], lk: a[9], tp: a[11] });
     const bullets = new Map();
     for (const b of s.b) bullets.set(b[0], b);
     const snap = { t, ph: s.ph, pr: s.pr, ring: s.ring, rt: s.rt, players, bullets };
@@ -123,7 +126,7 @@
       if (r) (r.correct ? SFX.ok : SFX.bad)(); else SFX.ok();
     }
     if (to === 'ended') SFX.win();
-    if (to === 'lobby') { snaps.length = 0; latest = null; pred.init = false; }
+    if (to === 'lobby' || to === 'countdown') { if (to === 'lobby') { snaps.length = 0; latest = null; } pred.init = false; }
   }
 
   // ================= GIAO DIỆN DOM =================
@@ -376,7 +379,7 @@
   // ================= ĐIỀU KHIỂN =================
   const keys = {}, mouse = { x: innerWidth / 2, y: innerHeight / 2, down: false };
   let dashSeq = 0, lastSent = '', lastSentT = 0, meScreen = { x: innerWidth / 2, y: innerHeight / 2 };
-  const pred = { x: 0, y: 0, init: false, dashT: 0, dashCd: 0, dir: [1, 0] };
+  const pred = { x: 0, y: 0, init: false, dashT: 0, dashCd: 0, dir: [1, 0], tp: -1 };
 
   addEventListener('keydown', e => {
     if (e.target && e.target.tagName === 'INPUT') { if (e.key === 'Enter' && e.target.id === 'nameInput') doJoin(); return; }
@@ -413,7 +416,8 @@
   setInterval(() => {
     if (!M || !me() || !inMatch() || isScreen) return;
     const ok = controllable();
-    const msg = { m: ok ? bits() : 0, a: Math.round(aim() * 1000) / 1000, f: ok && mouse.down ? 1 : 0, d: dashSeq };
+    const msg = { m: ok ? bits() : 0, a: Math.round(aim() * 1000) / 1000, f: ok && mouse.down ? 1 : 0,
+      x: Math.round(pred.x * 10) / 10, y: Math.round(pred.y * 10) / 10, tp: pred.tp, ds: pred.dashT > 0 ? 1 : 0 };
     const s = JSON.stringify(msg), t = performance.now();
     if (s !== lastSent || t - lastSentT > 250) { send('input', msg); lastSent = s; lastSentT = t; }
   }, 33);
@@ -494,15 +498,12 @@
     if (m && myServer && !isScreen) {
       const st = SH.stats(m.char, m.gadgets);
       pred.dashCd = Math.max(0, pred.dashCd - dt);
-      if (!pred.init || !controllable()) { pred.x = myServer.x; pred.y = myServer.y; pred.init = true; pred.dashT = 0; }
-      else {
+      if (!pred.init || pred.tp !== myServer.tp || !(myServer.fl & 1)) { pred.x = myServer.x; pred.y = myServer.y; pred.init = true; pred.dashT = 0; pred.tp = myServer.tp; }
+      else if (controllable()) {
         const [dx, dy] = moveDir();
         let vx = dx * st.speed, vy = dy * st.speed;
         if (pred.dashT > 0) { pred.dashT -= dt; vx = pred.dir[0] * st.speed * SH.MOVE.DASH_MULT; vy = pred.dir[1] * st.speed * SH.MOVE.DASH_MULT; }
         pred.x += vx * dt; pred.y += vy * dt; SH.resolve(pred, PR);
-        const ex = myServer.x - pred.x, ey = myServer.y - pred.y, err = Math.hypot(ex, ey);
-        if (err > 90) { pred.x = myServer.x; pred.y = myServer.y; }
-        else { const f = Math.min(1, dt * (dx || dy || pred.dashT > 0 ? 2.5 : 10)); pred.x += ex * f; pred.y += ey * f; }
       }
     }
 

@@ -28,7 +28,7 @@ const CFG = {
 };
 if (process.env.FAST) Object.assign(CFG, { FIRST_COMBAT: 7, COMBAT: 6, QUIZ_TIME: 6, REVEAL_TIME: 3, LOCK_PICK_TIME: 4 }); // chế độ chạy thử nhanh
 const RESPAWN_TIME = 4; // giây hồi sinh khi bị hạ trước vòng cuối
-const RING_STEPS =[880, 700, 520, 360, 0]; // bán kính vùng an toàn sau mỗi sự cố
+const RING_STEPS = [900, 780, 640, 500, 0]; // bán kính vùng an toàn sau mỗi sự cố
 const BULLET_SPEED = 640, BULLET_LIFE = 0.5, WATER_COST = 2;
 
 const QUESTIONS = JSON.parse(fs.readFileSync(path.join(__dirname, 'questions.json'), 'utf8'));
@@ -114,7 +114,7 @@ function newPlayerStats(p) {
   const [sx, sy] = S.SPAWNS[p.char];
   Object.assign(p, {
     x: sx, y: sy, a: Math.atan2(S.CY - sy, S.CX - sx), hp: st.maxHp, w: st.maxWater, shield: 0,
-    alive: true, lockT: 0, dashT: 0, dashCd: 0, dashDir: [1, 0], fireT: 0, sinceFire: 9,
+    alive: true, tp: (p.tp || 0) + 1, lockT: 0, dashT: 0, dashCd: 0, dashDir: [1, 0], fireT: 0, sinceFire: 9,
     input: { m: 0, a: 0, f: 0, d: 0 }, lastDash: 0, kills: 0, correct: 0, gadgets: [],
     deathOrder: 0, respawnT: 0, lastHitBy: null, lastHitAt: -99, answer: null, answerTime: null, place: 0,
   });
@@ -224,7 +224,7 @@ function die(p, killer, how) {
 
 function respawn(p) {
     const st = S.stats(p.char, p.gadgets), sp = S.SPAWNS[p.char];
-    Object.assign(p, { x: sp[0], y: sp[1], hp: st.maxHp, w: st.maxWater, alive: true, respawnT: 0, dashT: 0, lockT: 0 });
+    Object.assign(p, { x: sp[0], y: sp[1], hp: st.maxHp, w: st.maxWater, alive: true, respawnT: 0, dashT: 0, lockT: 0, tp: p.tp + 1 });
     game.events.push({ k: 'respawn', id: p.id });
     pushMeta();
   }
@@ -279,7 +279,7 @@ setInterval(() => {
 function simulate(dt) {
   game.simTime += dt;
   // thu hẹp vùng an toàn
-  const ringSpeed = game.final ? 30 : 30;
+  const ringSpeed = game.final ? 16 : 12; // đơn vị/giây
   if (game.ring > game.ringTarget) game.ring = Math.max(game.ringTarget, game.ring - ringSpeed * dt);
 
   for (const p of game.players) if (!p.alive && p.respawnT > 0 && !game.final) { p.respawnT -= dt; if (p.respawnT <= 0) respawn(p); }
@@ -291,23 +291,16 @@ function simulate(dt) {
     p.sinceFire += dt;
     if (p.lockT > 0) { p.lockT = Math.max(0, p.lockT - dt); p.dashT = 0; continue; }
 
-    const m = p.input.m;
-    let mx = ((m & 8) ? 1 : 0) - ((m & 4) ? 1 : 0), my = ((m & 2) ? 1 : 0) - ((m & 1) ? 1 : 0);
-    const ml = Math.hypot(mx, my); if (ml) { mx /= ml; my /= ml; }
     p.a = p.input.a;
-
-    // lướt
-    if (p.input.d !== p.lastDash) {
-      p.lastDash = p.input.d;
-      if (p.dashCd <= 0) {
-        p.dashT = S.MOVE.DASH_TIME; p.dashCd = st.dashCd;
-        p.dashDir = ml ? [mx, my] : [Math.cos(p.a), Math.sin(p.a)];
-        game.events.push({ k: 'dash', id: p.id });
-      }
+    // vị trí do máy người chơi tự tính (phản hồi tức thì); máy chủ chỉ kiểm tra hợp lệ
+    if (p.input.tp === p.tp && Number.isFinite(p.input.x) && Number.isFinite(p.input.y)) {
+      let dx = p.input.x - p.x, dy = p.input.y - p.y; const d = Math.hypot(dx, dy), lim = 220;
+      if (d > lim) { dx = dx / d * lim; dy = dy / d * lim; }
+      p.x += dx; p.y += dy;
     }
-    let vx = mx * st.speed, vy = my * st.speed;
-    if (p.dashT > 0) { p.dashT -= dt; vx = p.dashDir[0] * st.speed * S.MOVE.DASH_MULT; vy = p.dashDir[1] * st.speed * S.MOVE.DASH_MULT; }
-    p.x += vx * dt; p.y += vy * dt;
+    const dashing = !!p.input.ds;
+    if (dashing && !p.dashT) game.events.push({ k: 'dash', id: p.id });
+    p.dashT = dashing ? 1 : 0;
     S.resolve(p, S.PR);
 
     // phun nước
@@ -338,12 +331,7 @@ function simulate(dt) {
     }
   }
 
-  // đẩy các nhân vật không chồng lên nhau
   const al = alive();
-  for (let i = 0; i < al.length; i++) for (let j = i + 1; j < al.length; j++) {
-    const a = al[i], b = al[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy) || 0.01, m = S.PR * 2;
-    if (d < m) { const push = (m - d) / 2; a.x -= dx / d * push; a.y -= dy / d * push; b.x += dx / d * push; b.y += dy / d * push; S.resolve(a, S.PR); S.resolve(b, S.PR); }
-  }
 
   // tia nước
   const keep = [];
@@ -375,11 +363,11 @@ function simulate(dt) {
 function broadcastSnap() {
   const t = now();
   const snap = {
-    ph: game.phase, pr: game.phaseEnds === Infinity ? -1 : Math.max(0, game.phaseEnds - t), ring: Math.round(game.ring), rt: game.ringTarget,
+    st: t, ph: game.phase, pr: game.phaseEnds === Infinity ? -1 : Math.max(0, game.phaseEnds - t), ring: Math.round(game.ring), rt: game.ringTarget,
     p: game.players.map(p => [p.id, Math.round(p.x * 10) / 10, Math.round(p.y * 10) / 10, Math.round(p.a * 100) / 100,
       Math.max(0, Math.round(p.hp)), Math.round(p.w), Math.round(p.shield),
       (p.alive ? 1 : 0) | (p.lockT > 0 ? 2 : 0) | (p.dashT > 0 ? 4 : 0) | (p.sinceFire < 0.15 ? 8 : 0) | (p.atPump ? 16 : 0),
-      Math.round(p.dashCd * 10) / 10, Math.round(p.lockT * 10) / 10, Math.ceil(p.respawnT)]),
+      Math.round(p.dashCd * 10) / 10, Math.round(p.lockT * 10) / 10, Math.ceil(p.respawnT), p.tp]),
     b: game.bullets.map(b => [b.id, Math.round(b.x), Math.round(b.y), b.owner]),
     e: game.events,
   };
@@ -463,7 +451,7 @@ function onMessage(c, text) {
       const i = me.input;
       i.m = Number(data.m) & 15; i.f = data.f ? 1 : 0;
       if (Number.isFinite(data.a)) i.a = data.a;
-      if (Number.isInteger(data.d)) i.d = data.d;
+      i.x = Number(data.x); i.y = Number(data.y); i.tp = data.tp | 0; i.ds = data.ds ? 1 : 0;
       return;
     }
     case 'answer': {
