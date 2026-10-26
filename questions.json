@@ -1,0 +1,62 @@
+[
+  {
+    "topic": "Nhiệm vụ 1 · Đặc điểm công việc",
+    "question": "Công việc nào KHÔNG phải của kỹ thuật viên hệ thống tưới tự động?",
+    "options": [
+      "Lắp đặt đường ống, máy bơm, van điện từ",
+      "Kiểm tra, xử lý rò rỉ và tắc nghẽn",
+      "Thu hoạch và rang xay cà phê",
+      "Cài đặt bộ điều khiển tưới qua điện thoại/cảm biến"
+    ],
+    "correct": 2,
+    "explain": "Kỹ thuật viên thiết kế, lắp đặt, bảo dưỡng và xử lý sự cố hệ thống tưới, không làm công việc thu hoạch hay chế biến nông sản."
+  },
+  {
+    "topic": "Nhiệm vụ 1 · Năng lực cần có",
+    "question": "Nghề kỹ thuật viên hệ thống tưới tự động cần những kiến thức nào?",
+    "options": [
+      "Kế toán và kỹ năng bán hàng",
+      "Điện – điện tử cơ bản và đường ống nước (thủy lực)",
+      "Thiết kế thời trang và may mặc",
+      "Nấu ăn và dinh dưỡng"
+    ],
+    "correct": 1,
+    "explain": "Cần kiến thức điện – điện tử cơ bản, đường ống nước (thủy lực) và biết dùng ứng dụng điều khiển thông minh. Phẩm chất: chịu khó, cẩn thận, làm việc ngoài trời, giải quyết vấn đề linh hoạt."
+  },
+  {
+    "topic": "Nhiệm vụ 2 · Con đường học tập",
+    "question": "Theo lựa chọn 2, học xong lớp 9 có thể học ở đâu để trở thành kỹ thuật viên hệ thống tưới?",
+    "options": [
+      "Trường THPT chuyên",
+      "Trung tâm ngoại ngữ",
+      "Trường Trung cấp – Cao đẳng nghề (nghề Điện / Cơ khí nông nghiệp) trong tỉnh",
+      "Học viện âm nhạc"
+    ],
+    "correct": 2,
+    "explain": "Lựa chọn 2: học nghề Điện / Cơ khí nông nghiệp ở trường Trung cấp – Cao đẳng nghề. Lựa chọn 1: học THPT/GDTX rồi Cao đẳng/Đại học ngành Điện – Tự động hóa, Cơ điện tử hoặc Kỹ thuật Tài nguyên nước."
+  },
+  {
+    "topic": "Nhiệm vụ 3 · Thu nhập",
+    "question": "Thu nhập dự kiến của kỹ thuật viên mới ra trường / học việc là bao nhiêu?",
+    "options": [
+      "3 – 4 triệu đồng/tháng",
+      "7 – 9 triệu đồng/tháng",
+      "10 – 16 triệu đồng/tháng",
+      "25 – 30 triệu đồng/tháng"
+    ],
+    "correct": 1,
+    "explain": "Mới ra trường: 7 – 9 triệu/tháng. Có kinh nghiệm 2 – 5 năm: 10 – 16 triệu/tháng, hoặc cao hơn nếu tự nhận thi công dự án cho các chủ vườn."
+  },
+  {
+    "topic": "Nhiệm vụ 3 · Thách thức",
+    "question": "Thách thức lớn nhất của nghề kỹ thuật viên hệ thống tưới tự động là gì?",
+    "options": [
+      "Ở Đắk Lắk không có việc làm",
+      "Không bao giờ phải làm việc ngoài trời",
+      "Thu nhập không bao giờ tăng",
+      "Công nghệ tự động, IoT, cảm biến cải tiến liên tục nên phải thường xuyên cập nhật kiến thức"
+    ],
+    "correct": 3,
+    "explain": "Công nghệ điều khiển tự động và IoT thay đổi liên tục, cộng với môi trường làm việc chủ yếu ngoài trời. Bù lại, thị trường Đắk Lắk rất rộng và có thể tự mở cửa hàng lắp đặt khi đủ kinh nghiệm."
+  }
+]

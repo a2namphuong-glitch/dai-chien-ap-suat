@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="vi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Đại Chiến Áp Suất</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<canvas id="world"></canvas>
+
+<!-- ================= SẢNH / CHỌN NHÂN VẬT ================= -->
+<section id="lobby" class="screen">
+  <div class="hazard"></div>
+  <header class="logo">
+    <div class="logo-kicker">KỸ THUẬT VIÊN HỆ THỐNG TƯỚI TỰ ĐỘNG · ĐẮK LẮK</div>
+    <h1 class="logo-title"><span>ĐẠI CHIẾN</span><span class="big">ÁP SUẤT</span></h1>
+  </header>
+  <div id="lobbyBody"></div>
+</section>
+
+<!-- ================= HUD TRONG TRẬN ================= -->
+<section id="hud" class="hidden">
+  <div id="meCard" class="me-card">
+    <canvas id="mePortrait" width="128" height="128"></canvas>
+    <div class="me-info">
+      <div class="me-name"><b id="meName"></b><span id="meChar"></span></div>
+      <div class="bar hp"><i id="hpFill"></i><i id="shFill" class="sh"></i><em id="hpText"></em></div>
+      <div class="bar water"><i id="wFill"></i><em id="wText"></em></div>
+      <div class="me-row">
+        <div class="dash" id="dashBox"><span>LƯỚT</span><i id="dashFill"></i></div>
+        <div class="gadgets" id="gadgets"></div>
+      </div>
+    </div>
+  </div>
+  <div id="phaseBox" class="phase-box"></div>
+  <div id="board" class="board"></div>
+  <div id="feed" class="feed"></div>
+  <div class="keys-hint" id="keysHint">
+    <span><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> di chuyển</span>
+    <span><kbd>CHUỘT</kbd> ngắm · giữ chuột trái phun nước</span>
+    <span><kbd>SPACE</kbd> lướt</span>
+  </div>
+  <canvas id="minimap" width="240" height="150"></canvas>
+  <div id="announce" class="announce"></div>
+  <div id="vignette" class="vignette"></div>
+</section>
+
+<!-- ================= TERMINAL SỰ CỐ (CÂU HỎI) ================= -->
+<section id="quiz" class="overlay hidden"><div class="terminal" id="terminal"></div></section>
+
+<!-- ================= KẾT THÚC ================= -->
+<section id="ended" class="overlay hidden"><div id="endBody" class="end-body"></div></section>
+
+<div id="conn" class="conn hidden">MẤT KẾT NỐI TỚI MÁY CHỦ — ĐANG KẾT NỐI LẠI…</div>
+<div id="toasts"></div>
+
+<script src="shared.js"></script>
+<script src="render.js"></script>
+<script src="client.js"></script>
+</body>
+</html>

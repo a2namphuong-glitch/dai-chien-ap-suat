@@ -1,0 +1,8 @@
+{
+  "name": "dai-chien-ap-suat",
+  "version": "1.0.0",
+  "description": "Game đấu trường 4 người qua mạng LAN - chủ đề kỹ thuật viên hệ thống tưới tự động",
+  "main": "server.js",
+  "scripts": { "start": "node server.js" },
+  "license": "MIT"
+}
