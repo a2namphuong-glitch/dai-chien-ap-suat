@@ -16,7 +16,7 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 const CFG = {
   FIRST_COMBAT: 15,   // giây chiến đấu trước sự cố đầu tiên
   COMBAT: 12,         // giây chiến đấu giữa các sự cố
-  QUIZ_TIME: 10,      // giây trả lời câu hỏi
+  QUIZ_TIME: 30,      // giây trả lời câu hỏi
   REVEAL_TIME: 4,     // giây xem đáp án
   LOCK_PICK_TIME: 5,  // giây để người nhanh nhất chọn đối thủ khóa van
   LOCK_DURATION: 3,   // giây đối thủ bị khóa van (đứng im)

@@ -50,7 +50,7 @@ Máy nối với máy chiếu mở địa chỉ thêm `/screen` ở cuối, ví 
 
 - Mỗi phát phun tốn nước. **Hết nước → chạy về TRẠM BƠM** ở giữa bản đồ để nạp rất nhanh. Bình cũng tự hồi chậm khi không bắn.
 - Trúng tia nước thì mất máu. **Hết máu là bị loại.**
-- Đầu trận có 15 giây chiến đấu, sau đó cứ 12 giây lại có **SỰ CỐ HỆ THỐNG** (tổng 5 câu). Trận đấu dừng lại, cả 4 người trả lời trong 10 giây:
+- Đầu trận có 15 giây chiến đấu, sau đó cứ 12 giây lại có **SỰ CỐ HỆ THỐNG** (tổng 5 câu). Trận đấu dừng lại, cả 4 người trả lời trong 30 giây (ai cũng trả lời xong thì sang luôn):
   - **Đúng** → nhận linh kiện nâng cấp và được nạp đầy nước.
   - **Sai / hết giờ** → **rò rỉ**: mất 20 máu và hết sạch nước (có thể bị loại luôn!).
   - **Người đúng nhanh nhất** được **KHÓA VAN** một đối thủ, làm người đó đứng im 3 giây khi trận tiếp tục.
@@ -104,7 +104,7 @@ Mở `server.js` bằng Notepad, tìm phần **CÀI ĐẶT TRẬN ĐẤU** ở �
 |---|---|---|
 | `FIRST_COMBAT` | Giây chiến đấu trước sự cố đầu tiên | 15 |
 | `COMBAT` | Giây chiến đấu giữa các sự cố | 12 |
-| `QUIZ_TIME` | Giây trả lời câu hỏi | 10 |
+| `QUIZ_TIME` | Giây trả lời câu hỏi | 30 |
 | `LEAK_DAMAGE` | Máu mất khi trả lời sai | 20 |
 | `LOCK_DURATION` | Giây bị khóa van | 3 |
 | `DROUGHT_DPS` | Máu mất mỗi giây trong vùng hạn hán | 15 |
