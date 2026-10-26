@@ -11,16 +11,16 @@
   // ---- 4 NHÂN VẬT ----
   const CHARS = [
     { id: 0, name: 'THỢ ỐNG', role: 'Chống chịu', color: '#e5533f', dark: '#7d2318', hat: '#ff8a1f',
-      hp: 130, speed: 190, dmg: 6, water: 100, regen: 6, fireMs: 100, dashCd: 2.6,
-      perk: 'Lì đòn nhất đội: 130 máu.' },
+      hp: 70, speed: 190, dmg: 6, water: 100, regen: 6, fireMs: 100, dashCd: 2.6,
+      perk: 'Lì đòn nhất đội: 70 máu.' },
     { id: 1, name: 'KỸ SƯ BƠM', role: 'Sát thương', color: '#2f86d9', dark: '#163f6b', hat: '#f4f4ee',
-      hp: 100, speed: 205, dmg: 8, water: 90, regen: 6, fireMs: 100, dashCd: 2.6,
+      hp: 55, speed: 205, dmg: 8, water: 90, regen: 6, fireMs: 100, dashCd: 2.6,
       perk: 'Tia nước mạnh hơn 33%.' },
     { id: 2, name: 'CHUYÊN GIA IOT', role: 'Bền bỉ', color: '#35a853', dark: '#17592a', hat: '#2b2f36',
-      hp: 95, speed: 210, dmg: 6, water: 135, regen: 11, fireMs: 88, dashCd: 2.3,
+      hp: 50, speed: 210, dmg: 6, water: 135, regen: 11, fireMs: 88, dashCd: 2.3,
       perk: 'Bình nước to, hồi nước nhanh, bắn liên tục.' },
     { id: 3, name: 'THỢ ĐIỆN', role: 'Cơ động', color: '#efb21c', dark: '#7a5604', hat: '#ffe14d',
-      hp: 90, speed: 238, dmg: 6, water: 100, regen: 6, fireMs: 100, dashCd: 1.3,
+      hp: 45, speed: 238, dmg: 6, water: 100, regen: 6, fireMs: 100, dashCd: 1.3,
       perk: 'Chạy nhanh nhất, lướt gần như liên tục.' },
   ];
 
@@ -28,7 +28,7 @@
   const GADGETS = [
     { id: 'pump', name: 'BƠM TĂNG ÁP', desc: '+35% sát thương tia nước' },
     { id: 'tank', name: 'BÌNH CHỨA LỚN', desc: '+50 sức chứa nước, hồi nước nhanh hơn' },
-    { id: 'valve', name: 'VAN ĐIỆN TỪ', desc: 'Khiên chặn 45 sát thương' },
+    { id: 'valve', name: 'VAN ĐIỆN TỪ', desc: 'Khiên chặn 25 sát thương' },
     { id: 'spr', name: 'BÉC PHUN XOAY', desc: 'Phun 3 tia nước cùng lúc' },
     { id: 'ctrl', name: 'BỘ ĐIỀU KHIỂN IOT', desc: '+20% tốc độ, lướt hồi nhanh gấp đôi' },
   ];

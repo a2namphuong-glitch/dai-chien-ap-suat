@@ -14,19 +14,20 @@ const PUBLIC_DIR = path.join(__dirname, 'public');
 
 // ====== CÀI ĐẶT TRẬN ĐẤU (có thể chỉnh) ======
 const CFG = {
-  FIRST_COMBAT: 30,   // giây chiến đấu trước sự cố đầu tiên
-  COMBAT: 25,         // giây chiến đấu giữa các sự cố
-  QUIZ_TIME: 15,      // giây trả lời câu hỏi
-  REVEAL_TIME: 6,     // giây xem đáp án
-  LOCK_PICK_TIME: 8,  // giây để người nhanh nhất chọn đối thủ khóa van
-  LOCK_DURATION: 3.5, // giây đối thủ bị khóa van (đứng im)
-  COUNTDOWN: 3,       // đếm ngược trước mỗi hiệp
-  LEAK_DAMAGE: 25,    // máu mất khi trả lời sai
-  DROUGHT_DPS: 12,    // máu mất mỗi giây khi đứng trong vùng hạn hán
+  FIRST_COMBAT: 15,   // giây chiến đấu trước sự cố đầu tiên
+  COMBAT: 12,         // giây chiến đấu giữa các sự cố
+  QUIZ_TIME: 10,      // giây trả lời câu hỏi
+  REVEAL_TIME: 4,     // giây xem đáp án
+  LOCK_PICK_TIME: 5,  // giây để người nhanh nhất chọn đối thủ khóa van
+  LOCK_DURATION: 3,   // giây đối thủ bị khóa van (đứng im)
+  COUNTDOWN: 2,       // đếm ngược trước mỗi hiệp
+  LEAK_DAMAGE: 20,    // máu mất khi trả lời sai
+  DROUGHT_DPS: 15,    // máu mất mỗi giây khi đứng trong vùng hạn hán
   MAX_PLAYERS: 4,
   MIN_PLAYERS: 2,     // tối thiểu để bấm Bắt đầu (để chạy thử). Thi thật nên đủ 4.
 };
 if (process.env.FAST) Object.assign(CFG, { FIRST_COMBAT: 7, COMBAT: 6, QUIZ_TIME: 6, REVEAL_TIME: 3, LOCK_PICK_TIME: 4 }); // chế độ chạy thử nhanh
+const RESPAWN_TIME = 4; // giây hồi sinh khi bị hạ trước vòng cuối
 const RING_STEPS =[880, 700, 520, 360, 0]; // bán kính vùng an toàn sau mỗi sự cố
 const BULLET_SPEED = 640, BULLET_LIFE = 0.5, WATER_COST = 2;
 
@@ -115,7 +116,7 @@ function newPlayerStats(p) {
     x: sx, y: sy, a: Math.atan2(S.CY - sy, S.CX - sx), hp: st.maxHp, w: st.maxWater, shield: 0,
     alive: true, lockT: 0, dashT: 0, dashCd: 0, dashDir: [1, 0], fireT: 0, sinceFire: 9,
     input: { m: 0, a: 0, f: 0, d: 0 }, lastDash: 0, kills: 0, correct: 0, gadgets: [],
-    deathOrder: 0, lastHitBy: null, lastHitAt: -99, answer: null, answerTime: null, place: 0,
+    deathOrder: 0, respawnT: 0, lastHitBy: null, lastHitAt: -99, answer: null, answerTime: null, place: 0,
   });
 }
 function resetGame(keepPlayers) {
@@ -147,6 +148,7 @@ function startMatch() {
 
 function startQuiz(i) {
   game.qIndex = i; game.bullets = [];
+    game.players.forEach(p => { if (!p.alive && !game.final) respawn(p); });
   game.players.forEach(p => { p.answer = null; p.answerTime = null; p.input.f = 0; });
   game.quiz = { index: i, startedAt: now(), results: null, fastestId: null, lockPicker: null, lockTarget: null, lockDone: false };
   setPhase('quiz', CFG.QUIZ_TIME * 1000);
@@ -164,7 +166,7 @@ function revealQuiz() {
       if (!p.gadgets.includes(g.id)) p.gadgets.push(g.id);
       const st = S.stats(p.char, p.gadgets);
       p.w = st.maxWater;
-      if (g.id === 'valve') p.shield = 45;
+      if (g.id === 'valve') p.shield = 25;
     } else {
       p.hp -= CFG.LEAK_DAMAGE; p.w = 0;
       if (p.hp <= 0) { die(p, null, 'leak'); r.died = true; }
@@ -192,7 +194,7 @@ function doLock(picker, targetId) {
   t.lockT = CFG.LOCK_DURATION;
   qz.lockTarget = t.id; qz.lockDone = true;
   game.feed.push({ k: 'lock', by: picker.id, v: t.id });
-  game.phaseEnds = now() + 3000;
+  game.phaseEnds = now() + 2000;
   pushMeta();
 }
 
@@ -204,14 +206,15 @@ function afterReveal() {
     if (t) return doLock(picker, t.id);
     qz.lockDone = true;
   }
-  if (alive().length <= 1) return endGame();
-  if (game.qIndex >= QUESTIONS.length - 1) game.final = true;
+  if (game.final && alive().length <= 1) return endGame();
+  if (game.qIndex >= QUESTIONS.length - 1) { game.players.forEach(p => { if (!p.alive) respawn(p); }); game.final = true; }
   setPhase('countdown', CFG.COUNTDOWN * 1000);
 }
 
 function die(p, killer, how) {
   if (!p.alive) return;
-  p.alive = false; p.hp = 0; p.lockT = 0; p.deathOrder = ++game.deathCount;
+  p.alive = false; p.hp = 0; p.lockT = 0; p.dashT = 0;
+      if (game.final) p.deathOrder = ++game.deathCount; else p.respawnT = RESPAWN_TIME;
   if (killer && killer.id !== p.id) killer.kills++;
   game.events.push({ k: 'kill', v: p.id, x: Math.round(p.x), y: Math.round(p.y) });
   game.feed.push({ k: 'kill', v: p.id, by: killer ? killer.id : null, how });
@@ -219,7 +222,13 @@ function die(p, killer, how) {
   pushMeta();
 }
 
-function damage(p, amt, by) {
+function respawn(p) {
+    const st = S.stats(p.char, p.gadgets), sp = S.SPAWNS[p.char];
+    Object.assign(p, { x: sp[0], y: sp[1], hp: st.maxHp, w: st.maxWater, alive: true, respawnT: 0, dashT: 0, lockT: 0 });
+    game.events.push({ k: 'respawn', id: p.id });
+    pushMeta();
+  }
+  function damage(p, amt, by) {
   if (!p.alive) return;
   if (p.shield > 0) { const a = Math.min(p.shield, amt); p.shield -= a; amt -= a; }
   p.hp -= amt;
@@ -260,9 +269,10 @@ setInterval(() => {
 function simulate(dt) {
   game.simTime += dt;
   // thu hẹp vùng an toàn
-  const ringSpeed = game.final ? 22 : 30;
+  const ringSpeed = game.final ? 30 : 30;
   if (game.ring > game.ringTarget) game.ring = Math.max(game.ringTarget, game.ring - ringSpeed * dt);
 
+  for (const p of game.players) if (!p.alive && p.respawnT > 0 && !game.final) { p.respawnT -= dt; if (p.respawnT <= 0) respawn(p); }
   for (const p of game.players) {
     if (!p.alive) continue;
     const st = S.stats(p.char, p.gadgets);
@@ -349,7 +359,7 @@ function simulate(dt) {
   }
   game.bullets = keep;
 
-  if (alive().length <= 1 && game.players.length > 1) endGame();
+  if (game.final && alive().length <= 1 && game.players.length > 1) endGame();
 }
 
 function broadcastSnap() {
@@ -359,7 +369,7 @@ function broadcastSnap() {
     p: game.players.map(p => [p.id, Math.round(p.x * 10) / 10, Math.round(p.y * 10) / 10, Math.round(p.a * 100) / 100,
       Math.max(0, Math.round(p.hp)), Math.round(p.w), Math.round(p.shield),
       (p.alive ? 1 : 0) | (p.lockT > 0 ? 2 : 0) | (p.dashT > 0 ? 4 : 0) | (p.sinceFire < 0.15 ? 8 : 0) | (p.atPump ? 16 : 0),
-      Math.round(p.dashCd * 10) / 10, Math.round(p.lockT * 10) / 10]),
+      Math.round(p.dashCd * 10) / 10, Math.round(p.lockT * 10) / 10, Math.ceil(p.respawnT)]),
     b: game.bullets.map(b => [b.id, Math.round(b.x), Math.round(b.y), b.owner]),
     e: game.events,
   };

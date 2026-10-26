@@ -101,7 +101,10 @@
     if (m.phase !== prevPh) onPhaseChange(prevPh, m.phase, prev);
     if (prev && me()) {
       const pm = prev.players.find(p => p.id === m.myId), nm = me();
-      if (pm && pm.alive && !nm.alive) announce('BẠN ĐÃ BỊ HẠ', 'Vẫn có thể xem trận đấu tới hết', 2600, '#ff4f43');
+      if (pm && pm.alive && !nm.alive) {
+        if (m.final) announce('BẠN ĐÃ BỊ LOẠI', 'Vẫn có thể xem trận đấu tới hết', 2600, '#ff4f43');
+        else announce('BẠN BỊ HẠ!', 'Hồi sinh tại nhà kho sau 4 giây', 2600, '#ff4f43');
+      }
     }
     renderUI();
   }
@@ -146,7 +149,7 @@
 
   function charStats(c) {
     const dps = c.dmg * 1000 / c.fireMs;
-    return [['MÁU', c.hp / 130], ['TỐC ĐỘ', c.speed / 240], ['SÁT THƯƠNG', dps / 80], ['BÌNH NƯỚC', c.water / 135]];
+    return [['MÁU', c.hp / 70], ['TỐC ĐỘ', c.speed / 240], ['SÁT THƯƠNG', dps / 80], ['BÌNH NƯỚC', c.water / 135]];
   }
   const cssVars = c => `--cc:${c.color};--cbg:${R.shade(c.color, -0.62)}`;
 
@@ -171,7 +174,7 @@
       <div class="join-grid">
         <div>
           <label class="field-label" for="nameInput">TÊN CỦA BẠN</label>
-          <input id="nameInput" class="name-input" maxlength="16" placeholder="VD: Minh Anh" value="${esc(typedName)}" autocomplete="off">
+          <input id="nameInput" class="name-input" maxlength="16" placeholder="VD: Nam Phương" value="${esc(typedName)}" autocomplete="off">
           <span class="field-label" style="margin-top:16px">ĐẠI DIỆN CHO</span>
           <div class="teams">${TEAMS.map((t, i) => { const tk = takenTeam(i + 1);
             return `<button class="team-chip ${selTeam === i + 1 ? 'sel' : ''}" data-act="team" data-v="${i + 1}" ${tk ? 'disabled title="Đã có người"' : ''}>${esc(t)}</button>`; }).join('')}</div>
@@ -223,13 +226,13 @@
   function howTo() {
     return `<div class="how">
       <div class="plate"><div class="plate-title">LUẬT CHƠI</div><ul>
-        <li>4 kỹ thuật viên đấu nhau bằng <b>súng phun nước áp suất cao</b>. Hết máu là bị loại.</li>
+        <li>4 kỹ thuật viên đấu nhau bằng <b>súng phun nước áp suất cao</b>. Bị hạ thì <b>hồi sinh sau 4 giây</b>, người hạ được tính điểm.</li>
         <li>Mỗi phát phun tốn nước. Hết nước thì chạy về <b>TRẠM BƠM</b> ở giữa bản đồ để nạp.</li>
         <li>Cứ ${M.cfg.COMBAT} giây lại có một <b>SỰ CỐ HỆ THỐNG</b> (5 câu hỏi). Trận đấu dừng lại để mọi người trả lời.</li>
         <li>Trả lời <b>đúng</b>: nhận một linh kiện nâng cấp. Trả lời <b>sai</b>: rò rỉ, mất ${M.cfg.LEAK_DAMAGE} máu và hết nước.</li>
         <li>Người <b>đúng nhanh nhất</b> được <b>KHÓA VAN</b> một đối thủ, làm họ đứng im ${String(M.cfg.LOCK_DURATION).replace('.', ',')} giây.</li>
         <li><b>Hạn hán</b> thu hẹp dần sau mỗi sự cố. Đứng ngoài vùng an toàn sẽ mất máu.</li>
-        <li>Người <b>cuối cùng còn đứng</b> là nhà vô địch!</li></ul></div>
+        <li>Sau câu 5 là <b>VÒNG CUỐI</b>: hết hồi sinh, hạn hán ép vào giữa. Người <b>cuối cùng còn đứng</b> là nhà vô địch!</li></ul></div>
       <div class="plate"><div class="plate-title">ĐIỀU KHIỂN</div><ul style="list-style:none;padding:0;line-height:2.3">
         <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> hoặc phím mũi tên: di chuyển</li>
         <li><kbd>CHUỘT</kbd> ngắm · <kbd>GIỮ CHUỘT TRÁI</kbd> phun nước</li>
@@ -280,7 +283,7 @@
       return `<div>${n(v)} gục vì hạn hán</div>`;
     }).join('');
     let w = $('watchBanner');
-    const watching = !isScreen && (!m || !m.alive) && inMatch();
+    const watching = !isScreen && (!m || (!m.alive && M.final)) && inMatch();
     if (watching && !w) { w = document.createElement('div'); w.id = 'watchBanner'; w.className = 'watch'; $('hud').appendChild(w); }
     if (w) {
       if (!watching) w.remove();

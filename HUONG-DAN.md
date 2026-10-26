@@ -1,6 +1,6 @@
 # ĐẠI CHIẾN ÁP SUẤT — Hướng dẫn chạy game
 
-Game đấu trường 4 người chơi qua mạng LAN/Wi-Fi. Mỗi tổ điều khiển một kỹ thuật viên hệ thống tưới, đấu nhau bằng súng phun nước áp suất cao. Xen giữa trận là 5 "sự cố hệ thống" (5 câu hỏi về nghề). **Khi chơi không cần Internet.**
+Game đấu trường 4 người chơi trên trình duyệt (khoảng 3 phút một trận). Mỗi tổ điều khiển một kỹ thuật viên hệ thống tưới, đấu nhau bằng súng phun nước áp suất cao. Xen giữa trận là 5 "sự cố hệ thống" (5 câu hỏi về nghề). **Khi chơi không cần Internet.**
 
 ---
 
@@ -50,10 +50,10 @@ Máy nối với máy chiếu mở địa chỉ thêm `/screen` ở cuối, ví 
 
 - Mỗi phát phun tốn nước. **Hết nước → chạy về TRẠM BƠM** ở giữa bản đồ để nạp rất nhanh. Bình cũng tự hồi chậm khi không bắn.
 - Trúng tia nước thì mất máu. **Hết máu là bị loại.**
-- Đầu trận có 30 giây chiến đấu, sau đó cứ 25 giây lại có **SỰ CỐ HỆ THỐNG** (tổng 5 câu). Trận đấu dừng lại, cả 4 người trả lời trong 15 giây:
+- Đầu trận có 15 giây chiến đấu, sau đó cứ 12 giây lại có **SỰ CỐ HỆ THỐNG** (tổng 5 câu). Trận đấu dừng lại, cả 4 người trả lời trong 10 giây:
   - **Đúng** → nhận linh kiện nâng cấp và được nạp đầy nước.
-  - **Sai / hết giờ** → **rò rỉ**: mất 25 máu và hết sạch nước (có thể bị loại luôn!).
-  - **Người đúng nhanh nhất** được **KHÓA VAN** một đối thủ, làm người đó đứng im 3,5 giây khi trận tiếp tục.
+  - **Sai / hết giờ** → **rò rỉ**: mất 20 máu và hết sạch nước (có thể bị loại luôn!).
+  - **Người đúng nhanh nhất** được **KHÓA VAN** một đối thủ, làm người đó đứng im 3 giây khi trận tiếp tục.
 - Sau mỗi sự cố, **vùng hạn hán** (màu cam, đất nứt) thu hẹp vào giữa. Đứng ngoài vùng xanh sẽ mất máu. Vòng chấm trắng là vùng an toàn kế tiếp.
 - Sau câu 5 là **VÒNG CUỐI**: hạn hán thu hẹp tới tâm. **Người cuối cùng còn đứng là nhà vô địch.**
 
@@ -61,7 +61,7 @@ Máy nối với máy chiếu mở địa chỉ thêm `/screen` ở cuối, ví 
 
 | Nhân vật | Điểm mạnh |
 |---|---|
-| **THỢ ỐNG** | Nhiều máu nhất (130) |
+| **THỢ ỐNG** | Nhiều máu nhất (70) |
 | **KỸ SƯ BƠM** | Tia nước mạnh nhất |
 | **CHUYÊN GIA IOT** | Bình nước to, hồi nước nhanh, bắn liên tục |
 | **THỢ ĐIỆN** | Chạy nhanh nhất, lướt gần như liên tục |
@@ -72,7 +72,7 @@ Máy nối với máy chiếu mở địa chỉ thêm `/screen` ở cuối, ví 
 |---|---|---|
 | 1 | Bơm tăng áp | +35% sát thương |
 | 2 | Bình chứa lớn | +50 sức chứa nước, hồi nước nhanh hơn |
-| 3 | Van điện từ | Khiên chặn 45 sát thương |
+| 3 | Van điện từ | Khiên chặn 25 sát thương |
 | 4 | Béc phun xoay | Phun 3 tia cùng lúc |
 | 5 | Bộ điều khiển IoT | +20% tốc độ, lướt hồi nhanh gấp đôi |
 
@@ -102,12 +102,12 @@ Mở `server.js` bằng Notepad, tìm phần **CÀI ĐẶT TRẬN ĐẤU** ở �
 
 | Tên | Ý nghĩa | Mặc định |
 |---|---|---|
-| `FIRST_COMBAT` | Giây chiến đấu trước sự cố đầu tiên | 30 |
-| `COMBAT` | Giây chiến đấu giữa các sự cố | 25 |
-| `QUIZ_TIME` | Giây trả lời câu hỏi | 15 |
-| `LEAK_DAMAGE` | Máu mất khi trả lời sai | 25 |
-| `LOCK_DURATION` | Giây bị khóa van | 3.5 |
-| `DROUGHT_DPS` | Máu mất mỗi giây trong vùng hạn hán | 12 |
+| `FIRST_COMBAT` | Giây chiến đấu trước sự cố đầu tiên | 15 |
+| `COMBAT` | Giây chiến đấu giữa các sự cố | 12 |
+| `QUIZ_TIME` | Giây trả lời câu hỏi | 10 |
+| `LEAK_DAMAGE` | Máu mất khi trả lời sai | 20 |
+| `LOCK_DURATION` | Giây bị khóa van | 3 |
+| `DROUGHT_DPS` | Máu mất mỗi giây trong vùng hạn hán | 15 |
 | `MIN_PLAYERS` | Số người tối thiểu để bấm Bắt đầu | 2 |
 
 ---
